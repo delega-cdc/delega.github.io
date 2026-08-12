@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Teste API com JWT</title>
+    <title>API com JWT</title>
 </head>
-
 <body>
 
     <h1>Teste da API</h1>
@@ -13,44 +12,44 @@
     <button id="login">1. Fazer Login</button>
     <button id="mudarCor">2. Mudar Cor</button>
 
-    <p id="mensagem"></p>
+    <p id="mensagem">Faça o login primeiro.</p>
 
     <script>
-        let token = '';
+        let token = "";
 
-        // 1. Fazer Login
-        document.getElementById('login').addEventListener('click', async () => {
+        document.getElementById("login").addEventListener("click", async function() {
             try {
-                const resposta = await fetch('http://localhost:3000/api/login', {
-                    method: 'POST',
+                const resposta = await fetch("http://localhost:3000/api/login", {
+                    method: "POST",
                     headers: {
-                        'Content-Type': 'application/json'
+                        "Content-Type": "application/json"
                     }
                 });
 
                 const dados = await resposta.json();
 
-                token = dados.token;
-
-                document.getElementById('mensagem').textContent =
-                    'Login realizado com sucesso!';
-                
-                console.log('Token:', token);
+                if (resposta.ok) {
+                    token = dados.token;
+                    document.getElementById("mensagem").textContent =
+                        "Login realizado com sucesso!";
+                } else {
+                    document.getElementById("mensagem").textContent =
+                        "Erro no login: " + dados.mensagem;
+                }
 
             } catch (erro) {
-                document.getElementById('mensagem').textContent =
-                    'Erro ao fazer login.';
                 console.error(erro);
+                document.getElementById("mensagem").textContent =
+                    "Não foi possível conectar com a API.";
             }
         });
 
-        // 2. Mudar Cor
-        document.getElementById('mudarCor').addEventListener('click', async () => {
+        document.getElementById("mudarCor").addEventListener("click", async function() {
             try {
-                const resposta = await fetch('http://localhost:3000/api/cor', {
-                    method: 'GET',
+                const resposta = await fetch("http://localhost:3000/api/cor", {
+                    method: "GET",
                     headers: {
-                        'Authorization': 'Bearer ' + token
+                        "Authorization": "Bearer " + token
                     }
                 });
 
@@ -58,17 +57,17 @@
 
                 if (resposta.ok) {
                     document.body.style.backgroundColor = dados.cor;
-                    document.getElementById('mensagem').textContent =
-                        'Cor alterada com sucesso! HTTP ' + resposta.status;
+                    document.getElementById("mensagem").textContent =
+                        "Cor alterada! HTTP " + resposta.status;
                 } else {
-                    document.getElementById('mensagem').textContent =
-                        dados.mensagem + ' HTTP ' + resposta.status;
+                    document.getElementById("mensagem").textContent =
+                        dados.mensagem + " HTTP " + resposta.status;
                 }
 
             } catch (erro) {
-                document.getElementById('mensagem').textContent =
-                    'Erro ao conectar com a API.';
                 console.error(erro);
+                document.getElementById("mensagem").textContent =
+                    "Erro ao conectar com a API.";
             }
         });
     </script>
