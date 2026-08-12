@@ -1,36 +1,77 @@
-<button id="btnLogin">1. Fazer Login</button>
-<button id="btnCor">2. Mudar Cor do Card</button>
-<div id="card" style="width: 100px; height: 100px; background-color: gray;"></div>
-<p id="status">Status: Não autenticado</p>
-<script>
-let tokenJWT = '';
-// 1. Fazer Login e obter o JWT
-document.getElementById('btnLogin').addEventListener('click', () => {
-fetch('http://localhost:3000/api/login', { method: 'POST' })
-.then(res => res.json())
-.then(dados => {
-tokenJWT = dados.token;
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste API com JWT</title>
+</head>
 
-document.getElementById('status').innerText = 'Status: Autenticado com
-Sucesso!';
-})
-.catch(err => console.error('Erro no Login:', err));
-});
-// 2. Chamar rota protegida enviando o JWT
-document.getElementById('btnCor').addEventListener('click', () => {
-fetch('http://localhost:3000/api/cor', {
-method: 'GET',
-headers: {
-'Authorization': 'Bearer ' + tokenJWT
-}
-})
-.then(res => {
-if (!res.ok) throw new Error('Acesso negado ou token inválido');
-return res.json();
-})
-.then(dados => {
-document.getElementById('card').style.backgroundColor = dados.cor;
-})
-.catch(err => alert(err.message));
-});
-</script>
+<body>
+
+    <h1>Teste da API</h1>
+
+    <button id="login">1. Fazer Login</button>
+    <button id="mudarCor">2. Mudar Cor</button>
+
+    <p id="mensagem"></p>
+
+    <script>
+        let token = '';
+
+        // 1. Fazer Login
+        document.getElementById('login').addEventListener('click', async () => {
+            try {
+                const resposta = await fetch('http://localhost:3000/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const dados = await resposta.json();
+
+                token = dados.token;
+
+                document.getElementById('mensagem').textContent =
+                    'Login realizado com sucesso!';
+                
+                console.log('Token:', token);
+
+            } catch (erro) {
+                document.getElementById('mensagem').textContent =
+                    'Erro ao fazer login.';
+                console.error(erro);
+            }
+        });
+
+        // 2. Mudar Cor
+        document.getElementById('mudarCor').addEventListener('click', async () => {
+            try {
+                const resposta = await fetch('http://localhost:3000/api/cor', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': 'Bearer ' + token
+                    }
+                });
+
+                const dados = await resposta.json();
+
+                if (resposta.ok) {
+                    document.body.style.backgroundColor = dados.cor;
+                    document.getElementById('mensagem').textContent =
+                        'Cor alterada com sucesso! HTTP ' + resposta.status;
+                } else {
+                    document.getElementById('mensagem').textContent =
+                        dados.mensagem + ' HTTP ' + resposta.status;
+                }
+
+            } catch (erro) {
+                document.getElementById('mensagem').textContent =
+                    'Erro ao conectar com a API.';
+                console.error(erro);
+            }
+        });
+    </script>
+
+</body>
+</html>
